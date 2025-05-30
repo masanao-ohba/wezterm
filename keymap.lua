@@ -110,6 +110,11 @@ return {
     { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
     -- 選択中のPaneのみ表示
     { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+    -- ペインサイズ変更
+    { key = 'H', mods = 'LEADER', action = act.AdjustPaneSize { 'Left', 5 }, },
+    { key = 'J', mods = 'LEADER', action = act.AdjustPaneSize { 'Down', 5 }, },
+    { key = 'K', mods = 'LEADER', action = act.AdjustPaneSize { 'Up', 5 } },
+    { key = 'L', mods = 'LEADER', action = act.AdjustPaneSize { 'Right', 5 }, },
 
     -- フォントサイズ切替
     { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
