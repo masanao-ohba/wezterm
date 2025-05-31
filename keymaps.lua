@@ -63,10 +63,10 @@ return {
         action = wezterm.action_callback(function(window, pane, line)
           if line then
             window:perform_action(
-              act.SwitchToWorkspace({
-                name = line,
-              }),
-              pane
+            act.SwitchToWorkspace({
+              name = line,
+            }),
+            pane
             )
           end
         end),
@@ -165,9 +165,9 @@ return {
 
     -- 行削除
     {
-        key = 'Backspace',
-        mods = 'SUPER',
-        action = wezterm.action({ SendString = "\x1b[3~" }) -- ここで適切な削除コマンドを指定
+      key = 'Backspace',
+      mods = 'SUPER',
+      action = wezterm.action({ SendString = "\x1b[3~" }) -- ここで適切な削除コマンドを指定
     },
   },
   -- キーテーブル
