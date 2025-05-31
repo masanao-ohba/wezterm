@@ -3,6 +3,19 @@ local act = wezterm.action
 
 return {
   keys = {
+    -----------------------------------------------
+    --- 1. 基本的な設定
+    -----------------------------------------------
+    -- コマンドパレット表示
+    { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
+    -- 画面フルスクリーン切り替え
+    { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
+    -- カーソル移動 (単語単位)
+    { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = "b", mods = "META" }, },
+    { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = "f", mods = "META" }, },
+    -----------------------------------------------
+    --- 2. ワークスペース設定
+    -----------------------------------------------
     {
       -- workspaceの切り替え
       key = "w",
@@ -63,8 +76,9 @@ return {
         end),
       }),
     },
-    -- コマンドパレット表示
-    { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
+    -----------------------------------------------
+    --- タブ関連
+    -----------------------------------------------
     -- Tab移動
     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
@@ -76,9 +90,9 @@ return {
     { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
     { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
 
-    -- 画面フルスクリーン切り替え
-    { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
-
+    -----------------------------------------------
+    --- マルチプレクサ関連
+    -----------------------------------------------
     -- コピーモード
     -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
     { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
@@ -107,6 +121,9 @@ return {
     { key = 'K', mods = 'LEADER', action = act.AdjustPaneSize { 'Up', 5 } },
     { key = 'L', mods = 'LEADER', action = act.AdjustPaneSize { 'Right', 5 }, },
 
+    -----------------------------------------------
+    --- 切り替え系
+    -----------------------------------------------
     -- フォントサイズ切替
     { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
     { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
@@ -124,35 +141,10 @@ return {
     { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
     { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
 
-    -- タブ名変更
-    {
-      key = 'r',
-      mods = 'LEADER',
-      action = wezterm.action.PromptInputLine {
-        description = 'Rename Tab',
-        action = wezterm.action_callback(function(window, pane, line)
-          if line then
-            local tab = window:active_tab()
-            if tab then
-              local tab_id = tab:tab_id()
-              wezterm.mux.set_tab_title(tab_id, line)
-            end
-          end
-        end),
-      },
-    },
-
-    -- コマンドパレット
-    { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
     -- 設定再読み込み
-    { key = "r", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+    { key = "r", mods = "SUPER", action = act.ReloadConfiguration },
     -- キーテーブル用
     { key = "s", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
-    {
-      key = "a",
-      mods = "LEADER",
-      action = act.ActivateKeyTable({ name = "activate_pane", timeout_milliseconds = 1000 }),
-    },
 
     -- 行削除
     {
