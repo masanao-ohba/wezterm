@@ -7,8 +7,8 @@ config.font = wezterm.font_with_fallback {
   { family = 'Ricty Diminished', weight = 'Regular' },
   { family = 'Hack Nerd Font Mono', weight = 'Regular', assume_emoji_presentation = true },
 }
-config.freetype_load_target = 'Light'
-config.freetype_render_target = 'Light'
+config.freetype_load_target = 'Normal'
+config.freetype_render_target = 'Normal'
 config.use_ime = true
 
 config.color_scheme = 'Moonfly (Gogh)'
