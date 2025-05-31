@@ -14,6 +14,7 @@ config.hide_tab_bar_if_only_one_tab = false
 config.window_frame = {
   inactive_titlebar_bg = "none",
   active_titlebar_bg = "none",
+  font_size = 15,
 }
 
 -- タブバーを背景色に合わせる
