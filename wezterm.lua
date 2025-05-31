@@ -34,9 +34,12 @@ merge_config(config, tab_config)
 ----------------------------------------------------
 -- 4. キーマッピング
 ----------------------------------------------------
+-- OPT -> ALT
 config.disable_default_key_bindings = true
 config.keys = require("keymaps").keys
 config.key_tables = require("keymaps").key_tables
+config.send_composed_key_when_left_alt_is_pressed = true
+config.send_composed_key_when_right_alt_is_pressed = true
 config.leader = { key = "j", mods = "CTRL", timeout_milliseconds = 2000 }
 
 return config
