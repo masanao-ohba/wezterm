@@ -150,7 +150,21 @@ return {
     {
       key = 'Backspace',
       mods = 'SUPER',
-      action = wezterm.action({ SendString = "\x1b[3~" }) -- ここで適切な削除コマンドを指定
+      action = wezterm.action({
+        SendString = "\x15"
+      }) -- ここで適切な削除コマンドを指定
+    },
+    -- カーソル移動 (行頭/行末)
+    {
+      key = 'LeftArrow',
+      mods = 'SUPER',
+      action = wezterm.action.SendString('\x01'),
+    },
+    -- Cmd + Right → 行末へ移動（Ctrl+E）
+    {
+      key = 'RightArrow',
+      mods = 'SUPER',
+      action = wezterm.action.SendString('\x05'),
     },
   },
   -- キーテーブル
