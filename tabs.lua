@@ -35,7 +35,7 @@ config.colors = {
   },
 }
 
-config.inactive_pane_hsb = { saturation = 0.5, brightness = 0.5 }
+config.inactive_pane_hsb = { saturation = 0.80, brightness = 0.30 }
 
 require("events_tab")
 
