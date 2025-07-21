@@ -47,4 +47,10 @@ config.send_composed_key_when_left_alt_is_pressed = true
 config.send_composed_key_when_right_alt_is_pressed = true
 config.leader = { key = "j", mods = "CTRL", timeout_milliseconds = 2000 }
 
+----------------------------------------------------
+-- 6. Log Activity
+----------------------------------------------------
+require("activities")
+
+
 return config
