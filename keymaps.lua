@@ -13,6 +13,23 @@ return {
     -- カーソル移動 (単語単位)
     { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = "b", mods = "META" }, },
     { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = "f", mods = "META" }, },
+    -- Ctrl+k で画面を上にスクロール
+    {
+      key = 'k',
+      mods = 'ALT',
+      action = wezterm.action.ScrollByLine(-1),
+    },
+    -- Ctrl+j で画面を下にスクロール
+    {
+      key = 'j',
+      mods = 'ALT',
+      action = wezterm.action.ScrollByLine(1),
+    },
+    { key = 'Enter', mods = 'SHIFT', action = wezterm.action.SendString('\n') },
+    -- Ctrl+J の改行送信を無効化 (元leader keyの残留防止)
+    { key = 'j', mods = 'CTRL', action = act.Nop },
+    -- Alt + t : Claude Thinking Mode Toggle
+    { key = 't', mods = 'ALT', action = wezterm.action.SendKey { key = 't', mods = 'ALT', }, },
     -----------------------------------------------
     --- 2. ワークスペース設定
     -----------------------------------------------
@@ -82,6 +99,8 @@ return {
     -- Tab移動
     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+    { key = "l", mods = "SUPER", action = act.ActivateTabRelative(1) },
+    { key = "h", mods = "SUPER", action = act.ActivateTabRelative(-1) },
     -- Tab入れ替え
     { key = "{", mods = "LEADER", action = act({ MoveTabRelative = -1 }) },
     -- Tab新規作成
@@ -95,7 +114,7 @@ return {
     -----------------------------------------------
     -- コピーモード
     -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
-    { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
+    { key = "Space", mods = "LEADER", action = act.ActivateCopyMode },
     -- コピー
     { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
     -- 貼り付け
@@ -224,7 +243,6 @@ return {
       { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
       { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
       { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
-
 
       -- 範囲選択モード
       { key = "Space", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
