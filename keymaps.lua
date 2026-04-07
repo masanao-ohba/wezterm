@@ -8,7 +8,7 @@ return {
     -----------------------------------------------
     -- コマンドパレット表示
     { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
-    -- 画面フルスクリーン切り替え
+    -- 画面フルスクリーン切り替え (一時復元: 解除用)
     { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
     -- カーソル移動 (単語単位)
     { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = "b", mods = "META" }, },
@@ -34,64 +34,12 @@ return {
     --- 2. ワークスペース設定
     -----------------------------------------------
     {
-      -- workspaceの切り替え
+      -- ワークスペースセレクタ表示
       key = "w",
       mods = "LEADER",
-      action = wezterm.action_callback (function (win, pane)
-        -- workspace のリストを作成
-        local workspaces = {}
-        for i, name in ipairs(wezterm.mux.get_workspace_names()) do
-          table.insert(workspaces, {
-            id = name,
-            label = string.format("%d. %s", i, name),
-          })
-        end
-        local current = wezterm.mux.get_active_workspace()
-        -- 選択メニューを起動
-        win:perform_action(act.InputSelector {
-          action = wezterm.action_callback(function (_, _, id, label)
-            if not id and not label then
-              wezterm.log_info "Workspace selection canceled"  -- 入力が空ならキャンセル
-            else
-              win:perform_action(act.SwitchToWorkspace { name = id }, pane)  -- workspace を移動
-            end
-          end),
-          title = "Select workspace",
-          choices = workspaces,
-          fuzzy = true,
-          fuzzy_description = string.format("Select workspace: %s -> ", current), -- requires nightly build
-        }, pane)
+      action = wezterm.action_callback(function(win, pane)
+        require("workspaces").show_selector(win, pane)
       end),
-    },
-    {
-      --workspaceの名前変更
-      key = "$",
-      mods = "LEADER",
-      action = act.PromptInputLine({
-        description = "(wezterm) Set workspace title:",
-        action = wezterm.action_callback(function(win, pane, line)
-          if line then
-            wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
-          end
-        end),
-      }),
-    },
-    {
-      key = "W",
-      mods = "LEADER|SHIFT",
-      action = act.PromptInputLine({
-        description = "(wezterm) Create new workspace:",
-        action = wezterm.action_callback(function(window, pane, line)
-          if line then
-            window:perform_action(
-            act.SwitchToWorkspace({
-              name = line,
-            }),
-            pane
-            )
-          end
-        end),
-      }),
     },
     -----------------------------------------------
     --- タブ関連
