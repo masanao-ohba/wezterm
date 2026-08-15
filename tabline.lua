@@ -26,6 +26,13 @@ tabline.setup({
         },
     },
     sections = {
+        tabline_b = {
+            function(window)
+                local mux_window = window:mux_window()
+                if not mux_window then return "" end
+                return require("workspaces").get_label(mux_window:window_id()) or ""
+            end,
+        },
         tab_active = {
             "index",
             { "process", padding = { left = 0, right = 1 } },

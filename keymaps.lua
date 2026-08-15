@@ -82,11 +82,12 @@ return {
     { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
     -- 選択中のPaneのみ表示
     { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+    -- タブ入れ替え (現在のタブを左右へ移動)
+    { key = 'H', mods = 'LEADER', action = act.MoveTabRelative(-1) },
+    { key = 'L', mods = 'LEADER', action = act.MoveTabRelative(1) },
     -- ペインサイズ変更
-    { key = 'H', mods = 'LEADER', action = act.AdjustPaneSize { 'Left', 5 }, },
     { key = 'J', mods = 'LEADER', action = act.AdjustPaneSize { 'Down', 5 }, },
     { key = 'K', mods = 'LEADER', action = act.AdjustPaneSize { 'Up', 5 } },
-    { key = 'L', mods = 'LEADER', action = act.AdjustPaneSize { 'Right', 5 }, },
 
     -----------------------------------------------
     --- 切り替え系
