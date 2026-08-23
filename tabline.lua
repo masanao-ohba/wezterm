@@ -26,6 +26,19 @@ tabline.setup({
         },
     },
     sections = {
+        tabline_y = {
+            function()
+                local t = wezterm.time.now()
+                local weekdays = { "日", "月", "火", "水", "木", "金", "土" }
+                local wd = weekdays[tonumber(t:format("%w")) + 1]
+                return wezterm.nerdfonts.md_calendar_clock
+                    .. " "
+                    .. t:format("%m/%d(")
+                    .. wd
+                    .. t:format(") %H:%M")
+            end,
+            "battery",
+        },
         tabline_b = {
             function(window)
                 local mux_window = window:mux_window()
