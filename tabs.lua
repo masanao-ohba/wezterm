@@ -7,13 +7,21 @@ config.window_decorations = "RESIZE"
 config.show_tabs_in_tab_bar = true
 -- タブが一つの時は非表示
 config.hide_tab_bar_if_only_one_tab = false
--- falseにするとタブバーの透過が効かなくなる
--- config.use_fancy_tab_bar = false
+-- retro タブバーはターミナルのフォントで描かれる。fancy の UI フォントの
+-- 見た目を優先するため fancy のまま使う。ただし fancy は別フォント・別桁で
+-- 描画されるため、左ステータスへの空白詰めによるタブ中央寄せは成立しない。
+config.use_fancy_tab_bar = true
+
+-- tab_title.lua は最大23桁でタブ名を作る。左右のキャップと "N: " を足しても
+-- 収まる幅にしておかないと wezterm 側で二重に切られる。
+config.tab_max_width = 32
 
 -- タブバーの透過
 config.window_frame = {
-  inactive_titlebar_bg = "none",
-  active_titlebar_bg = "none",
+  -- タブのキャップと左右ステータスがこの地色の上に乗る。明暗を交互にする
+  -- 配色が中明度の地色を前提にしているため、透過ではなく実色を敷く。
+  inactive_titlebar_bg = "#332a57",
+  active_titlebar_bg = "#332a57",
   font_size = 15,
 }
 
@@ -31,6 +39,7 @@ config.show_close_tab_button_in_tabs = false
 -- タブ同士の境界線を非表示
 config.colors = {
   tab_bar = {
+    background = "#332a57",
     inactive_tab_edge = "none",
   },
 }

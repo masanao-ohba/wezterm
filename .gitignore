@@ -1,0 +1,2 @@
+# ワークスペース定義はマシン固有の絶対パスを含むため追跡しない
+workspaces/workspaces.json

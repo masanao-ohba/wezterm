@@ -4,7 +4,31 @@ local mux = wezterm.mux
 
 local M = {}
 
-local window_registry = {}
+-- Lua のモジュール変数は wezterm の Lua context ごとに独立しており、
+-- update-status が登録時とは別の context で実行されるとラベルを引けない。
+-- wezterm.GLOBAL は全 context / 設定リロードを越えて共有されるため、ここに保持する。
+-- GLOBAL は読み出すとコピーが返るので、更新は read-modify-write で行う。
+-- また GLOBAL に格納するテーブルのキーは文字列に統一する。
+
+local function registry_all()
+  return wezterm.GLOBAL.window_registry or {}
+end
+
+local function registry_get(window_id)
+  return registry_all()[tostring(window_id)]
+end
+
+local function registry_set(window_id, info)
+  local registry = registry_all()
+  registry[tostring(window_id)] = info
+  wezterm.GLOBAL.window_registry = registry
+end
+
+local function registry_remove(window_id)
+  local registry = registry_all()
+  registry[tostring(window_id)] = nil
+  wezterm.GLOBAL.window_registry = registry
+end
 
 -- Helpers
 
@@ -29,11 +53,11 @@ local function load_config()
 end
 
 local function find_window_by_name(name)
-  for wid, info in pairs(window_registry) do
+  for wid, info in pairs(registry_all()) do
     if info.name ~= name then goto continue end
-    local w = get_mux_window(wid)
+    local w = get_mux_window(tonumber(wid))
     if w then return w, info end
-    window_registry[wid] = nil
+    registry_remove(wid)
     ::continue::
   end
   return nil
@@ -51,11 +75,11 @@ local function find_repo(repos, name)
 end
 
 local function register_window(wid, group_name, repo_config)
-  window_registry[wid] = {
+  registry_set(wid, {
     group = group_name,
     name = repo_config.name,
     directory = repo_config.directory,
-  }
+  })
 end
 
 local function spawn_tabs(window, directory, count)
@@ -103,14 +127,14 @@ local function build_stage1(config, on_select_new, on_select_opened)
     })
   end
 
-  for wid, info in pairs(window_registry) do
-    if get_mux_window(wid) then
+  for wid, info in pairs(registry_all()) do
+    if get_mux_window(tonumber(wid)) then
       table.insert(choices, {
         id = "window:" .. info.name,
         label = "> " .. info.name,
       })
     else
-      window_registry[wid] = nil
+      registry_remove(wid)
     end
   end
 
@@ -161,7 +185,7 @@ end
 -- Public
 
 function M.get_label(window_id)
-  local info = window_registry[window_id]
+  local info = registry_get(window_id)
   return info and info.name or nil
 end
 

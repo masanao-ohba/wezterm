@@ -56,6 +56,19 @@ return {
     -- Tabを閉じる
     { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
     { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
+    -- Tab名を手動で付ける (空入力で自動命名に戻す)
+    {
+      key = "r",
+      mods = "LEADER",
+      action = act.PromptInputLine({
+        description = "タブ名 (空でリセット)",
+        action = wezterm.action_callback(function(win, _pane, line)
+          if line then
+            win:active_tab():set_title(line)
+          end
+        end),
+      }),
+    },
 
     -----------------------------------------------
     --- マルチプレクサ関連
