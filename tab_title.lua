@@ -5,6 +5,13 @@ local M = {}
 
 M.MAX_WIDTH = 23
 
+-- タブ番号と左右の余白。label と overhead が同じ組み立てを通ることで、
+-- 書式を変えたときに桁数の見積もりが取り残されないようにする。
+local function prefix(number)
+  return " " .. number .. ": "
+end
+local SUFFIX = " "
+
 -- シェルが名乗るだけのタイトルは識別に使えないので cwd に落とす
 local SHELL_TITLES = { zsh = true, bash = true, sh = true, fish = true }
 
@@ -29,16 +36,23 @@ function M.resolve(explicit, pane_title, cwd_path)
 end
 
 -- 先頭を残して省略する。要約は先頭のほうが識別に効くため。
-function M.truncate(text)
-  if wezterm.column_width(text) <= M.MAX_WIDTH then
+-- width は呼び出し側がウィンドウ幅から算出した上限。省略時は MAX_WIDTH。
+function M.truncate(text, width)
+  width = width or M.MAX_WIDTH
+  if wezterm.column_width(text) <= width then
     return text
   end
-  return wezterm.truncate_right(text, M.MAX_WIDTH - 1) .. "…"
+  return wezterm.truncate_right(text, math.max(width - 1, 1)) .. "…"
 end
 
 -- タブに表示する文字列。左右のキャップは含まない。
-function M.label(number, explicit, pane_title, cwd_path)
-  return " " .. number .. ": " .. M.truncate(M.resolve(explicit, pane_title, cwd_path)) .. " "
+function M.label(number, explicit, pane_title, cwd_path, width)
+  return prefix(number) .. M.truncate(M.resolve(explicit, pane_title, cwd_path), width) .. SUFFIX
+end
+
+-- label がタブ名以外に使う桁数。番号が2桁になれば1桁増える。
+function M.overhead(number)
+  return wezterm.column_width(prefix(number) .. SUFFIX)
 end
 
 return M

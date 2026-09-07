@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local colors = require("colors")
 local config = wezterm.config_builder()
 
 -- タイトルバーを非表示
@@ -12,7 +13,8 @@ config.hide_tab_bar_if_only_one_tab = false
 -- 描画されるため、左ステータスへの空白詰めによるタブ中央寄せは成立しない。
 config.use_fancy_tab_bar = true
 
--- tab_title.lua は最大23桁でタブ名を作る。左右のキャップと "N: " を足しても
+-- タブ名の桁数はウィンドウ幅から動的に決まる (events_tab.lua の title_width)。
+-- その上限である tab_title.MAX_WIDTH (23桁) に左右のキャップと "N: " を足しても
 -- 収まる幅にしておかないと wezterm 側で二重に切られる。
 config.tab_max_width = 32
 
@@ -20,8 +22,8 @@ config.tab_max_width = 32
 config.window_frame = {
   -- タブのキャップと左右ステータスがこの地色の上に乗る。明暗を交互にする
   -- 配色が中明度の地色を前提にしているため、透過ではなく実色を敷く。
-  inactive_titlebar_bg = "#332a57",
-  active_titlebar_bg = "#332a57",
+  inactive_titlebar_bg = colors.BAR,
+  active_titlebar_bg = colors.BAR,
   font_size = 15,
 }
 
@@ -39,7 +41,7 @@ config.show_close_tab_button_in_tabs = false
 -- タブ同士の境界線を非表示
 config.colors = {
   tab_bar = {
-    background = "#332a57",
+    background = colors.BAR,
     inactive_tab_edge = "none",
   },
 }
