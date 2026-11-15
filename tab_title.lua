@@ -1,18 +1,22 @@
 local wezterm = require("wezterm")
 
--- タブ名の決定規則。呼び出し側の型に依存しないよう、引数は文字列だけを受け取る。
+-- Rules for deciding the tab name. Arguments are plain strings only, so this does
+-- not depend on the caller's types.
 local M = {}
 
 M.MAX_WIDTH = 23
 
--- タブ番号と左右の余白。label と overhead が同じ組み立てを通ることで、
--- 書式を変えたときに桁数の見積もりが取り残されないようにする。
-local function prefix(number)
-  return " " .. number .. ": "
+-- Tab number, progress mark, and left/right padding. label and overhead go through
+-- the same builder, so the width estimate is not left behind when the format changes.
+-- indicator is the mark returned by tab_progress.indicator(); "" when there is no
+-- progress.
+local function prefix(number, indicator)
+  local mark = (indicator and indicator ~= "") and (indicator .. " ") or ""
+  return " " .. number .. ": " .. mark
 end
 local SUFFIX = " "
 
--- シェルが名乗るだけのタイトルは識別に使えないので cwd に落とす
+-- A title that only names the shell cannot identify a tab, so fall back to the cwd
 local SHELL_TITLES = { zsh = true, bash = true, sh = true, fish = true }
 
 local function basename(path)
@@ -22,9 +26,9 @@ local function basename(path)
   return path:gsub("/+$", ""):match("([^/]+)$")
 end
 
--- 手動命名 > パネルタイトル > cwd のベース名 の順に採用する。
--- tab:set_title() で付けた名前は自動命名の材料とは別に保持されるため、
--- 手動命名が自動更新で潰れることはない。
+-- Use the first available of: manual name > pane title > cwd basename.
+-- A name set with tab:set_title() is kept apart from the inputs to automatic naming,
+-- so automatic updates never overwrite a manual name.
 function M.resolve(explicit, pane_title, cwd_path)
   if explicit and explicit ~= "" then
     return explicit
@@ -35,8 +39,9 @@ function M.resolve(explicit, pane_title, cwd_path)
   return basename(cwd_path) or pane_title or ""
 end
 
--- 先頭を残して省略する。要約は先頭のほうが識別に効くため。
--- width は呼び出し側がウィンドウ幅から算出した上限。省略時は MAX_WIDTH。
+-- Truncate keeping the beginning, because the beginning of a title identifies it
+-- best. width is the limit the caller computed from the window width; defaults to
+-- MAX_WIDTH.
 function M.truncate(text, width)
   width = width or M.MAX_WIDTH
   if wezterm.column_width(text) <= width then
@@ -45,14 +50,15 @@ function M.truncate(text, width)
   return wezterm.truncate_right(text, math.max(width - 1, 1)) .. "…"
 end
 
--- タブに表示する文字列。左右のキャップは含まない。
-function M.label(number, explicit, pane_title, cwd_path, width)
-  return prefix(number) .. M.truncate(M.resolve(explicit, pane_title, cwd_path), width) .. SUFFIX
+-- The string shown in the tab, excluding the left and right caps.
+function M.label(number, indicator, explicit, pane_title, cwd_path, width)
+  return prefix(number, indicator) .. M.truncate(M.resolve(explicit, pane_title, cwd_path), width) .. SUFFIX
 end
 
--- label がタブ名以外に使う桁数。番号が2桁になれば1桁増える。
-function M.overhead(number)
-  return wezterm.column_width(prefix(number) .. SUFFIX)
+-- Cells that label uses besides the tab name. Grows when the number reaches two
+-- digits or a progress mark is added.
+function M.overhead(number, indicator)
+  return wezterm.column_width(prefix(number, indicator) .. SUFFIX)
 end
 
 return M

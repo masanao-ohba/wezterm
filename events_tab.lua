@@ -2,20 +2,23 @@ local wezterm = require("wezterm")
 local colors = require("colors")
 local status = require("status")
 local tab_title = require("tab_title")
+local tab_progress = require("tab_progress")
 
--- 台形 (下底が広い) にするため左右のキャップを鏡像にする。
--- どちらもタブ色でグリフを描き、地色をバー色にする。
+-- The left and right caps are mirror images, forming a trapezoid wider at the bottom.
+-- Both draw the glyph in the tab color, with the bar color as the background.
 local CAP_LEFT = wezterm.nerdfonts.ple_lower_right_triangle -- U+E0BA
 local CAP_RIGHT = wezterm.nerdfonts.ple_lower_left_triangle -- U+E0B8
 local CAP_CELLS = 2
 
--- タブ名がこれ以下になるくらいなら、名前の断片が残っていたほうが選びやすい。
+-- Never shrink a tab name below this: a fragment of the name is easier to pick
+-- out than almost nothing.
 local MIN_WIDTH = 6
 
--- タブバー全体で使える桁数。fancy タブバーは window_frame.font_size で描かれる
--- 一方、PaneInformation の桁は本文フォントのものなので、サイズ比で概算する。
--- フォントの幅比までは取れないため 0.9 を掛けて少なめに見積もる。多く見積もると
--- タブが右のモード表示に重なるため、誤差は必ず狭い側へ倒すこと。
+-- Cells available to the whole tab bar. The fancy tab bar is drawn at
+-- window_frame.font_size, while PaneInformation counts cells in the content font,
+-- so this estimates from the size ratio. The font width ratio is not available, so
+-- multiply by 0.9 to underestimate. An overestimate makes the tabs overlap the mode
+-- display on the right, so always err on the narrow side.
 local function tabbar_cells(panes, config)
   local cols = 0
   for _, pane in ipairs(panes) do
@@ -28,10 +31,10 @@ local function tabbar_cells(panes, config)
   return math.floor(cols * (config.font_size / frame_size) * 0.9)
 end
 
--- 1タブあたりのタイトル上限桁。ウィンドウ幅が取れないときは wezterm が渡す
--- max_width と MAX_WIDTH だけで決める。
-local function title_width(tab, tabs, panes, config, max_width)
-  local overhead = CAP_CELLS + tab_title.overhead(tab.tab_index + 1)
+-- Maximum title cells per tab. When the window width is unavailable, only the
+-- max_width wezterm passes and MAX_WIDTH decide it.
+local function title_width(tab, tabs, panes, config, max_width, indicator)
+  local overhead = CAP_CELLS + tab_title.overhead(tab.tab_index + 1, indicator)
   local width = math.min(tab_title.MAX_WIDTH, max_width - overhead)
 
   local cells = tabbar_cells(panes, config)
@@ -47,12 +50,16 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   local tab_colors = tab.is_active and colors.TAB_ACTIVE or colors.TAB_INACTIVE
   local pane = tab.active_pane
   local cwd = pane.current_working_dir
+  -- Progress is collected from every pane in the tab. format-tab-title is called
+  -- again whenever what is shown changes, so computing it here each time is enough.
+  local indicator = tab_progress.indicator(tab.panes)
   local label = tab_title.label(
     tab.tab_index + 1,
+    indicator,
     tab.tab_title,
     pane.title,
     cwd and cwd.file_path or nil,
-    title_width(tab, tabs, panes, config, max_width)
+    title_width(tab, tabs, panes, config, max_width, indicator)
   )
 
   return {
