@@ -4,37 +4,37 @@ local act = wezterm.action
 return {
   keys = {
     -----------------------------------------------
-    --- 1. 基本的な設定
+    --- 1. Basics
     -----------------------------------------------
-    -- コマンドパレット表示
+    -- Show the command palette
     { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
-    -- 画面フルスクリーン切り替え (一時復元: 解除用)
+    -- Toggle full screen (restored temporarily, to get out of full screen)
     { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
-    -- カーソル移動 (単語単位)
+    -- Move the cursor by word
     { key = 'LeftArrow', mods = 'OPT', action = act.SendKey { key = "b", mods = "META" }, },
     { key = 'RightArrow', mods = 'OPT', action = act.SendKey { key = "f", mods = "META" }, },
-    -- Ctrl+k で画面を上にスクロール
+    -- Alt+k scrolls up one line
     {
       key = 'k',
       mods = 'ALT',
       action = wezterm.action.ScrollByLine(-1),
     },
-    -- Ctrl+j で画面を下にスクロール
+    -- Alt+j scrolls down one line
     {
       key = 'j',
       mods = 'ALT',
       action = wezterm.action.ScrollByLine(1),
     },
     { key = 'Enter', mods = 'SHIFT', action = wezterm.action.SendString('\n') },
-    -- Ctrl+J の改行送信を無効化 (元leader keyの残留防止)
+    -- Stop Ctrl+J from sending a newline (leftover from when it was the leader key)
     { key = 'j', mods = 'CTRL', action = act.Nop },
     -- Alt + t : Claude Thinking Mode Toggle
     { key = 't', mods = 'ALT', action = wezterm.action.SendKey { key = 't', mods = 'ALT', }, },
     -----------------------------------------------
-    --- 2. ワークスペース設定
+    --- 2. Workspaces
     -----------------------------------------------
     {
-      -- ワークスペースセレクタ表示
+      -- Show the workspace selector
       key = "w",
       mods = "LEADER",
       action = wezterm.action_callback(function(win, pane)
@@ -42,21 +42,21 @@ return {
       end),
     },
     -----------------------------------------------
-    --- タブ関連
+    --- Tabs
     -----------------------------------------------
-    -- Tab移動
+    -- Switch tabs
     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
     { key = "l", mods = "SUPER", action = act.ActivateTabRelative(1) },
     { key = "h", mods = "SUPER", action = act.ActivateTabRelative(-1) },
-    -- Tab入れ替え
+    -- Reorder tabs
     { key = "{", mods = "LEADER", action = act({ MoveTabRelative = -1 }) },
-    -- Tab新規作成
+    -- New tab
     { key = "t", mods = "SUPER", action = act({ SpawnTab = "CurrentPaneDomain" }) },
-    -- Tabを閉じる
+    -- Close tab
     { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
     { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
-    -- Tab名を手動で付ける (空入力で自動命名に戻す)
+    -- Rename the tab manually (empty input returns to automatic naming)
     {
       key = "r",
       mods = "LEADER",
@@ -71,47 +71,54 @@ return {
     },
 
     -----------------------------------------------
-    --- マルチプレクサ関連
+    --- Multiplexer
     -----------------------------------------------
-    -- コピーモード
+    -- Copy mode
     -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
     { key = "Space", mods = "LEADER", action = act.ActivateCopyMode },
-    -- コピー
+    -- Copy
     { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
-    -- 貼り付け
+    -- Paste
     { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
 
-    -- Pane作成 leader + r or d
+    -- Split panes: leader + - / v
     { key = "-", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
     { key = "v", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-    -- Paneを閉じる leader + x
+    -- Close pane: leader + x
     { key = "x", mods = "LEADER", action = act({ CloseCurrentPane = { confirm = true } }) },
-    -- Pane移動 leader + hlkj
+    -- Move between panes: leader + h/l/k/j
     { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
     { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
     { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
     { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-    -- Pane選択
+    -- Select a pane
     { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
-    -- 選択中のPaneのみ表示
+    -- Show only the current pane (zoom)
     { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
-    -- タブ入れ替え (現在のタブを左右へ移動)
-    { key = 'H', mods = 'LEADER', action = act.MoveTabRelative(-1) },
-    { key = 'L', mods = 'LEADER', action = act.MoveTabRelative(1) },
-    -- ペインサイズ変更
+    -- Move the current tab left/right
+    -- Move once, then enter move_tab so further H/L presses keep moving the tab
+    { key = 'H', mods = 'LEADER', action = act.Multiple({
+      act.MoveTabRelative(-1),
+      act.ActivateKeyTable({ name = "move_tab", one_shot = false, timeout_milliseconds = 1000, until_unknown = true }),
+    }) },
+    { key = 'L', mods = 'LEADER', action = act.Multiple({
+      act.MoveTabRelative(1),
+      act.ActivateKeyTable({ name = "move_tab", one_shot = false, timeout_milliseconds = 1000, until_unknown = true }),
+    }) },
+    -- Resize pane
     { key = 'J', mods = 'LEADER', action = act.AdjustPaneSize { 'Down', 5 }, },
     { key = 'K', mods = 'LEADER', action = act.AdjustPaneSize { 'Up', 5 } },
 
     -----------------------------------------------
-    --- 切り替え系
+    --- Switching
     -----------------------------------------------
-    -- フォントサイズ切替
+    -- Change font size
     { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
     { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
-    -- フォントサイズのリセット
+    -- Reset font size
     { key = "0", mods = "CTRL", action = act.ResetFontSize },
 
-    -- タブ切替 Cmd + 数字
+    -- Switch tabs: Cmd + number
     { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
     { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
     { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
@@ -122,43 +129,50 @@ return {
     { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
     { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
 
-    -- 設定再読み込み
+    -- Reload the config
     { key = "r", mods = "SUPER", action = act.ReloadConfiguration },
-    -- キーテーブル用
+    -- Enter the pane-resize key table: leader + s
     { key = "s", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
 
-    -- 行削除
+    -- Delete to the start of the line
     {
       key = 'Backspace',
       mods = 'SUPER',
       action = wezterm.action({
         SendString = "\x15"
-      }) -- ここで適切な削除コマンドを指定
+      }) -- Ctrl+U
     },
-    -- カーソル移動 (行頭/行末)
+    -- Cmd + Left -> start of line (Ctrl+A)
     {
       key = 'LeftArrow',
       mods = 'SUPER',
       action = wezterm.action.SendString('\x01'),
     },
-    -- Cmd + Right → 行末へ移動（Ctrl+E）
+    -- Cmd + Right -> end of line (Ctrl+E)
     {
       key = 'RightArrow',
       mods = 'SUPER',
       action = wezterm.action.SendString('\x05'),
     },
   },
-  -- キーテーブル
+  -- Key tables
   -- https://wezfurlong.org/wezterm/config/key-tables.html
   key_tables = {
-    -- Paneサイズ調整 leader + s
+    -- Repeated tab moves after leader + H/L
+    move_tab = {
+      { key = "H", action = act.MoveTabRelative(-1) },
+      { key = "L", action = act.MoveTabRelative(1) },
+      { key = "Escape", action = "PopKeyTable" },
+      { key = "Enter", action = "PopKeyTable" },
+    },
+    -- Resize panes: leader + s
     resize_pane = {
       { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
       { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
       { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
       { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
 
-      -- Cancel the mode by pressing escape
+      -- Leave the mode with Enter
       { key = "Enter", action = "PopKeyTable" },
     },
     activate_pane = {
@@ -167,53 +181,53 @@ return {
       { key = "k", action = act.ActivatePaneDirection("Up") },
       { key = "j", action = act.ActivatePaneDirection("Down") },
     },
-    -- copyモード leader + [
+    -- Copy mode: leader + Space
     copy_mode = {
-      -- 移動
+      -- Movement
       { key = "h", mods = "NONE", action = act.CopyMode("MoveLeft") },
       { key = "j", mods = "NONE", action = act.CopyMode("MoveDown") },
       { key = "k", mods = "NONE", action = act.CopyMode("MoveUp") },
       { key = "l", mods = "NONE", action = act.CopyMode("MoveRight") },
-      -- 最初と最後に移動
+      -- Start / end of the line content
       { key = "^", mods = "NONE", action = act.CopyMode("MoveToStartOfLineContent") },
       { key = "$", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
-      -- 左端に移動
+      -- Start of the line
       { key = "0", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
       { key = "o", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEnd") },
       { key = "O", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
       --
       { key = ";", mods = "NONE", action = act.CopyMode("JumpAgain") },
-      -- 単語ごと移動
+      -- Move by word
       { key = "w", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
       { key = "b", mods = "NONE", action = act.CopyMode("MoveBackwardWord") },
       { key = "e", mods = "NONE", action = act.CopyMode("MoveForwardWordEnd") },
-      -- ジャンプ機能 t f
+      -- Jump to a character: t / f / T / F
       { key = "t", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = true } }) },
       { key = "f", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = false } }) },
       { key = "T", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
       { key = "F", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
-      -- 一番下へ
+      -- To the bottom
       { key = "G", mods = "NONE", action = act.CopyMode("MoveToScrollbackBottom") },
-      -- 一番上へ
+      -- To the top
       { key = "g", mods = "NONE", action = act.CopyMode("MoveToScrollbackTop") },
-      -- viweport
+      -- Viewport top / bottom / middle
       { key = "H", mods = "NONE", action = act.CopyMode("MoveToViewportTop") },
       { key = "L", mods = "NONE", action = act.CopyMode("MoveToViewportBottom") },
       { key = "M", mods = "NONE", action = act.CopyMode("MoveToViewportMiddle") },
-      -- スクロール
+      -- Scroll
       { key = "b", mods = "CTRL", action = act.CopyMode("PageUp") },
       { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
       { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
       { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
 
-      -- 範囲選択モード
+      -- Selection modes
       { key = "Space", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
       { key = "v", mods = "CTRL", action = act.CopyMode({ SetSelectionMode = "Block" }) },
       { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
-      -- コピー
+      -- Copy
       { key = "y", mods = "NONE", action = act.CopyTo("Clipboard") },
 
-      -- コピーモードを終了
+      -- Leave copy mode
       {
         key = "Enter",
         mods = "NONE",
