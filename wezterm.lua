@@ -1,5 +1,5 @@
 ----------------------------------------------------
--- 0. 初期化
+-- 0. Initialization
 ----------------------------------------------------
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
@@ -14,30 +14,30 @@ local initialize_config = require("initializes")
 merge_config(config, initialize_config)
 
 ----------------------------------------------------
--- 1. 背景
+-- 1. Background
 ----------------------------------------------------
 config.background = require("background")
 ----------------------------------------------------
 
 ----------------------------------------------------
--- 2. フォント表示
+-- 2. Fonts
 ----------------------------------------------------
 local font_config = require("fonts")
 merge_config(config, font_config)
 
 ----------------------------------------------------
--- 3. タブ表示
+-- 3. Tabs
 ----------------------------------------------------
 local tab_config = require("tabs")
 merge_config(config, tab_config)
 
 ----------------------------------------------------
--- 4. ステータスバー
+-- 4. Status bar
 ----------------------------------------------------
 require("status")
 
 ----------------------------------------------------
--- 5. キーマッピング
+-- 5. Key mappings
 ----------------------------------------------------
 -- OPT -> ALT
 config.disable_default_key_bindings = true

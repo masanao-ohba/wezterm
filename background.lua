@@ -2,15 +2,15 @@ return {
   {
     source = {
       Gradient = {
-        colors = { '#000505', '#0b4048' }, -- グラデーションのカラーセット
+        colors = { '#000505', '#0b4048' }, -- gradient color stops
         orientation = {
-          Linear = { angle = 75.0 }, -- グラデーションの方向と角度
+          Linear = { angle = 75.0 }, -- gradient direction and angle
         },
       },
     },
-    opacity = 1.0, -- 透明度
-    width = "100%", -- 幅
-    height = "100%", -- 高さ
+    opacity = 1.0, -- opacity
+    width = "100%", -- width
+    height = "100%", -- height
 
   }
 }

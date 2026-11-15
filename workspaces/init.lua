@@ -4,11 +4,12 @@ local mux = wezterm.mux
 
 local M = {}
 
--- Lua のモジュール変数は wezterm の Lua context ごとに独立しており、
--- update-status が登録時とは別の context で実行されるとラベルを引けない。
--- wezterm.GLOBAL は全 context / 設定リロードを越えて共有されるため、ここに保持する。
--- GLOBAL は読み出すとコピーが返るので、更新は read-modify-write で行う。
--- また GLOBAL に格納するテーブルのキーは文字列に統一する。
+-- Lua module variables are separate for each wezterm Lua context, so when
+-- update-status runs in a different context from the one that registered a window,
+-- it cannot look up the label. wezterm.GLOBAL is shared across all contexts and
+-- config reloads, so the registry is kept there.
+-- Reading GLOBAL returns a copy, so updates are done as read-modify-write.
+-- Keys of tables stored in GLOBAL are always strings.
 
 local function registry_all()
   return wezterm.GLOBAL.window_registry or {}

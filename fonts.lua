@@ -13,8 +13,8 @@ config.use_ime = true
 
 config.color_scheme = 'Moonfly (Gogh)'
 config.inactive_pane_hsb = {
-  saturation = 1.10,  -- 彩度を10%増加
-  brightness = 1.30,  -- 明度を30%増加
+  saturation = 1.10,  -- raise saturation by 10%
+  brightness = 1.30,  -- raise brightness by 30%
 }
 
 return config

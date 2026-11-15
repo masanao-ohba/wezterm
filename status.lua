@@ -2,17 +2,21 @@ local wezterm = require("wezterm")
 local colors = require("colors")
 local workspaces = require("workspaces")
 
--- 左右ステータスの描画。桁数の問い合わせ (left_cells / right_cells) も
--- ここが持つ。書式を変えたら桁数も一緒に変わるよう、両者は同じ組み立て関数を
--- 通すこと。events_tab.lua はこの桁数を引いてタブ幅を決めている。
+-- Renders the left and right status. It also answers the cell-width queries
+-- (left_cells / right_cells). Both must go through the same builder functions so
+-- that the widths change along with the format. events_tab.lua subtracts these
+-- widths to size the tabs.
 local M = {}
 
--- ワークスペース名と日時の境界。上側が左隣の色、下側が右隣の色になる。
--- U+E0C0 以降 (炎・波形・台形など) はフォント由来で送り幅がセル幅と一致せず
--- 崩れる。wezterm が自前で描く U+E0B0〜U+E0BE から選ぶこと。
+-- Boundary between the workspace name and the date/time. The upper side takes the
+-- left neighbor's color and the lower side the right neighbor's.
+-- Glyphs from U+E0C0 onward (flames, waves, trapezoids, etc.) come from the font,
+-- and their advance width does not match the cell width, which breaks the layout.
+-- Choose from U+E0B0-U+E0BE, which wezterm draws itself.
 local SECTION_SEPARATOR = wezterm.nerdfonts.pl_left_hard_divider -- U+E0B0
 
--- チップの左右に入れる余白と、日時とタブの間に置く地色の余白。
+-- Padding on both sides of a chip, and base-color padding between the date/time
+-- and the tabs.
 local PAD = "  "
 local GAP = " "
 
@@ -44,7 +48,8 @@ local function current_datetime()
     .. now:format(") %H:%M")
 end
 
--- 左ステータスが専有する桁数。ワークスペース名は窓ごとに変わるので窓を受け取る。
+-- Cells occupied by the left status. The workspace name differs per window, so
+-- this takes the window id.
 function M.left_cells(window_id)
   local cells = wezterm.column_width(chip(current_datetime()) .. GAP)
   local workspace = workspaces.get_label(window_id) or ""
@@ -54,7 +59,8 @@ function M.left_cells(window_id)
   return cells
 end
 
--- 右ステータスが専有する桁数。モードは状態で変わるので最長のものを返す。
+-- Cells occupied by the right status. The mode changes with state, so this returns
+-- the widest one.
 function M.right_cells()
   local cells = 0
   for mode in pairs(colors.MODE) do
@@ -63,8 +69,9 @@ function M.right_cells()
   return cells
 end
 
--- 状態はすべてこのハンドラ内のローカルに閉じること。モジュール変数に持たせると、
--- 複数ウィンドウの update-status が入れ子に実行された際に互いの値を上書きする。
+-- Keep all state local to this handler. If it lived in module variables, the
+-- update-status handlers of multiple windows would overwrite each other's values
+-- when they run nested.
 wezterm.on("update-status", function(window)
   local elements = {}
 
@@ -84,12 +91,13 @@ wezterm.on("update-status", function(window)
   end
   push(colors.DATETIME.bg, colors.DATETIME.fg, chip(current_datetime()), "Normal")
 
-  -- 日時の右端は区切りを置かず垂直に切る。タブとの間に地色の余白だけ入れる。
+  -- The right edge of the date/time is cut straight, with no separator; only
+  -- base-color padding goes between it and the tabs.
   push(colors.BAR, colors.BAR, GAP)
 
   window:set_left_status(wezterm.format(elements))
 
-  -- モードの左端も区切りを置かず垂直に切る。
+  -- The left edge of the mode is also cut straight, with no separator.
   local mode = active_mode(window)
   local mode_colors = colors.MODE[mode] or colors.MODE.normal_mode
   window:set_right_status(wezterm.format({
