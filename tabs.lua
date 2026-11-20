@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local colors = require("colors")
+local pane_dim = require("pane_dim")
 local config = wezterm.config_builder()
 
 -- Hide the title bar
@@ -48,7 +49,8 @@ config.colors = {
   },
 }
 
-config.inactive_pane_hsb = { saturation = 0.80, brightness = 0.30 }
+-- Dim inactive panes by default; LEADER + d toggles it per window (pane_dim.lua)
+config.inactive_pane_hsb = pane_dim.DIMMED
 
 require("events_tab")
 

@@ -41,11 +41,12 @@ require("status")
 ----------------------------------------------------
 -- OPT -> ALT
 config.disable_default_key_bindings = true
-config.keys = require("keymaps").keys
-config.key_tables = require("keymaps").key_tables
+local keymaps = require("keymaps")
+config.keys = keymaps.keys
+config.key_tables = keymaps.key_tables
+config.leader = keymaps.leader
 config.send_composed_key_when_left_alt_is_pressed = true
 config.send_composed_key_when_right_alt_is_pressed = true
-config.leader = { key = "f", mods = "CMD", timeout_milliseconds = 2000 }
 
 ----------------------------------------------------
 -- 7. Workspace Setup on Startup
